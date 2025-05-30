@@ -6,7 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "mastra dev",
     "build": "mastra build",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
@@ -35,6 +36,8 @@
     "zod": "^3.25.23"
   },
   "devDependencies": {
+    "@commitlint/cli": "^18.6.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@types/node": "^22.15.21",
     "husky": "^8.0.3",
     "mastra": "^0.10.0",
