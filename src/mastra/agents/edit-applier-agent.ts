@@ -11,7 +11,11 @@ import {
   execTool,
 } from '../tools/share-tools'
 import { OPENAI_MODEL } from '../config'
-import { editFileTool, createFsTool } from '../tools/edit-code-tools'
+import {
+  editFileTool,
+  createFsTool,
+  getDiffTool,
+} from '../tools/edit-code-tools'
 import memory from './share-memory'
 export const EditApplierAgent = new Agent({
   name: 'Edit Applier Agent',
@@ -28,7 +32,8 @@ export const EditApplierAgent = new Agent({
     'if keyword.lower() in task["title"].lower():'
   );
   6.Always have in mind the goal that must be accomplish, that is your main task
-  7.  Make only the neccesary changes do need to complete the goal, even the diagnosys include other problems that are not related to the goal.JUST FINISH THE GOAL.`,
+  7.Make only the neccesary changes do need to complete the goal, even the diagnosys include other problems that are not related to the goal.JUST FINISH THE GOAL.
+  8.At the start and end of every task do a git diff to see the previous applied worked `,
   model: openai(OPENAI_MODEL),
   tools: {
     listDirTool,
@@ -41,6 +46,7 @@ export const EditApplierAgent = new Agent({
     editFileTool,
     appendFileTool,
     createFsTool,
+    getDiffTool,
   },
   memory: memory,
 })

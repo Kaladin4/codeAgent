@@ -3,7 +3,8 @@ import { createTool } from '@mastra/core/tools'
 import * as fs from 'fs'
 import * as path from 'path'
 import { logError, logTool } from '../../infrastructure/logging/logger'
-
+import { EVAL_DIRECTORY } from '../config'
+import { executeCommand } from './share-tools'
 const editFile = async (filePath: string, oldStr: string, newStr: string) => {
   if (!filePath || oldStr === newStr) {
     return { success: true, error: null }
@@ -114,5 +115,34 @@ export const createFsTool = createTool({
   execute: async ({ context: { path, type, content } }) => {
     logTool('createFsTool', `Creating ${type} at: ${path}`)
     return await createFileOrFolder(path, type, content)
+  },
+})
+
+const getDiff = async () => {
+  try {
+    const { success, output } = await executeCommand(
+      `cd "${EVAL_DIRECTORY}" && git diff`,
+    )
+    return { success: true, diff: output }
+  } catch (err) {
+    logError('getDiff', `Failed to get diff`, err)
+    return { success: false, diff: '' }
+  }
+}
+
+export const getDiffTool = createTool({
+  id: 'get-diff',
+  description:
+    'Use regularly when you need to get the git diff, do at the begging and end of each task',
+  inputSchema: z.object({}),
+  outputSchema: z.object({
+    success: z
+      .boolean()
+      .describe('Boolean value describing the succes of the edit'),
+    diff: z.string().describe('The git diff'),
+  }),
+  execute: async () => {
+    logTool('getDiffTool', `Getting git diff`)
+    return await getDiff()
   },
 })
