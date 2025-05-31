@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { Agent } from '../types/code-types'
+import { Agent } from '../../types/code-types'
 const logger = {
   'Diagnoser Agent': chalk.blue,
   'Edit Applier Agent': chalk.green,

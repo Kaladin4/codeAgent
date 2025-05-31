@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { createTool } from '@mastra/core/tools'
 import * as fs from 'fs'
 import * as path from 'path'
-import { logError, logTool } from '../../infra/logger-service'
+import { logError, logTool } from '../../infrastructure/logging/logger'
 
 const editFile = async (filePath: string, oldStr: string, newStr: string) => {
   if (!filePath || oldStr === newStr) {

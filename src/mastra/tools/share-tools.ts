@@ -3,7 +3,7 @@ import { createTool } from '@mastra/core/tools'
 import * as fs from 'fs'
 import * as path from 'path'
 import { exec } from 'child_process'
-import { logError, logTool } from '../../infra/logger-service'
+import { logError, logTool } from '../../infrastructure/logging/logger'
 import util from 'util'
 
 const findFileInDirectory = async (
