@@ -1,24 +1,32 @@
 import { Mastra } from '@mastra/core'
-import { DiagnoserAgent } from './agents/diagnoser-agent.ts'
-import { EditApplierAgent } from './agents/edit-applier-agent.ts'
 import { LibSQLStore } from '@mastra/libsql'
 import { sweWorkflow } from './workflows/swe-workflow.ts'
 import * as dotenv from 'dotenv'
 import readline from 'readline'
 import chalk from 'chalk'
 import inquirer from 'inquirer'
-import { GeneralAgent } from './agents/general-agent.ts'
-import { GoalAgent } from './agents/goal-agent.ts'
 import SWEContext from './context/sw-context.ts'
 import figlet from 'figlet'
 import { ISSUE_FILE_PATH, EVAL_DIRECTORY } from './config.ts'
 import { talk } from '../services/chat-service.ts'
+// Agents
+import { DiagnoserAgent } from './agents/diagnoser-agent.ts'
+import { EditApplierAgent } from './agents/edit-applier-agent.ts'
+import { ErrorInterpreterAgent } from './agents/error-interpreter.ts'
+import { GeneralAgent } from './agents/general-agent.ts'
+import { GoalAgent } from './agents/goal-agent.ts'
 
 //Load environment variables from .env file
 dotenv.config()
 
 export const mastra = new Mastra({
-  agents: { DiagnoserAgent, GeneralAgent, EditApplierAgent, GoalAgent },
+  agents: {
+    DiagnoserAgent,
+    GeneralAgent,
+    EditApplierAgent,
+    GoalAgent,
+    ErrorInterpreterAgent,
+  },
   workflows: { sweWorkflow },
   storage: new LibSQLStore({ url: 'file:./local.db' }),
 })
