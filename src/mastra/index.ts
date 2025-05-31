@@ -1,4 +1,6 @@
 import { Mastra } from '@mastra/core'
+import { createWriteStream } from 'fs'
+import player from 'play-sound'
 import { DiagnoserAgent } from './agents/diagnoser-agent.ts'
 import { EditApplierAgent } from './agents/edit-applier-agent.ts'
 import { LibSQLStore } from '@mastra/libsql'
@@ -12,6 +14,8 @@ import { GoalAgent } from './agents/goal-agent.ts'
 import SWEContext from './context/sw-context.ts'
 import figlet from 'figlet'
 import { ISSUE_FILE_PATH, EVAL_DIRECTORY } from './config.ts'
+import path from 'path'
+
 //Load environment variables from .env file
 dotenv.config()
 
@@ -21,7 +25,22 @@ export const mastra = new Mastra({
   storage: new LibSQLStore({ url: 'file:./local.db' }),
 })
 
-const talk = async (userMessage: string) => {
+const saveAudioResponse = async (
+  audio: any,
+  fileName: string = 'agent.mp3',
+) => {
+  const terminalCwd = process.env.PWD || process.cwd()
+  const fullPath = path.resolve(terminalCwd, `tmp/${fileName}`)
+  const writer = createWriteStream(fullPath)
+  audio.pipe(writer)
+  await new Promise<void>((resolve, reject) => {
+    writer.on('finish', () => resolve())
+    writer.on('error', reject)
+  })
+  return fullPath
+}
+
+const talk = async (userMessage: string, speak: boolean) => {
   try {
     const response = await GeneralAgent.generate(
       [{ role: 'user', content: userMessage }],
@@ -31,6 +50,14 @@ const talk = async (userMessage: string) => {
         maxSteps: 20,
       },
     )
+    if (speak) {
+      const audioStream = await GeneralAgent.voice.speak(response.text)
+      const filePath = await saveAudioResponse(audioStream!)
+      const play = player({})
+      play.play(filePath, (err: any) => {
+        if (err) console.error('Error playing sound:', err)
+      })
+    }
     return response.text || "Sorry, I didn't get a response"
   } catch (error) {
     console.error('Error in talk function:', error)
@@ -56,7 +83,18 @@ async function runDemoMode() {
   console.log(chalk.greenBright('✅ Demo complete!'))
 }
 
-function startChatMode() {
+async function startChatMode() {
+  const { chatType } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'chatType',
+      message: chalk.yellow('Select chat type:'),
+      choices: [chalk.blue('Text Chat'), chalk.magenta('Voice Chat')],
+    },
+  ])
+
+  const isVoiceChat = chatType.includes('Voice')
+
   console.log(
     chalk.cyanBright('\n💬 Entering chat mode. Type ') +
       chalk.bold("'exit'") +
@@ -77,7 +115,7 @@ function startChatMode() {
       rl.close()
       return
     }
-    const response = await talk(input)
+    const response = await talk(input, isVoiceChat)
     const aiResponse = chalk.magentaBright('AI: ') + chalk.whiteBright(response)
     console.log(aiResponse)
     rl.prompt()

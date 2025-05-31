@@ -1,4 +1,5 @@
 import { Agent } from '@mastra/core/agent'
+import { OpenAIVoice } from '@mastra/voice-openai'
 import { openai } from '@ai-sdk/openai'
 import {
   listDirTool,
@@ -10,6 +11,7 @@ import {
   execTool,
   appendFileTool,
 } from '../tools/share-tools'
+const voice = new OpenAIVoice()
 import { editFileTool, createFsTool } from '../tools/edit-code-tools'
 import memory from './share-memory'
 import { OPENAI_MODEL } from '../config'
@@ -30,4 +32,5 @@ export const GeneralAgent = new Agent({
     createFsTool,
   },
   memory: memory,
+  voice: voice,
 })
