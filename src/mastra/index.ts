@@ -39,7 +39,7 @@ async function runDemoMode() {
   SWEContext.set('patchNumber', 1)
   SWEContext.set(
     'task',
-    `The ${ISSUE_FILE_PATH} describe a issue about the sqlfluff project, you store a copy of that project at ${EVAL_DIRECTORY}, implement a valid patch that solves this issue`,
+    `The ${ISSUE_FILE_PATH} describe a issue  about a real project, you store a copy of that project at ${EVAL_DIRECTORY}, implement a valid patch that solves this issue. The issue description, is not necessarily in the ${EVAL_DIRECTORY}, first try with ${ISSUE_FILE_PATH} path`,
   )
   await sweWorkflow.createRun().start({
     inputData: {
