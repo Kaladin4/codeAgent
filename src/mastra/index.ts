@@ -1,6 +1,4 @@
 import { Mastra } from '@mastra/core'
-import { createWriteStream } from 'fs'
-import player from 'play-sound'
 import { DiagnoserAgent } from './agents/diagnoser-agent.ts'
 import { EditApplierAgent } from './agents/edit-applier-agent.ts'
 import { LibSQLStore } from '@mastra/libsql'
@@ -14,7 +12,7 @@ import { GoalAgent } from './agents/goal-agent.ts'
 import SWEContext from './context/sw-context.ts'
 import figlet from 'figlet'
 import { ISSUE_FILE_PATH, EVAL_DIRECTORY } from './config.ts'
-import path from 'path'
+import { talk } from '../services/chat-service.ts'
 
 //Load environment variables from .env file
 dotenv.config()
@@ -24,46 +22,6 @@ export const mastra = new Mastra({
   workflows: { sweWorkflow },
   storage: new LibSQLStore({ url: 'file:./local.db' }),
 })
-
-const saveAudioResponse = async (
-  audio: any,
-  fileName: string = 'agent.mp3',
-) => {
-  const terminalCwd = process.env.PWD || process.cwd()
-  const fullPath = path.resolve(terminalCwd, `tmp/${fileName}`)
-  const writer = createWriteStream(fullPath)
-  audio.pipe(writer)
-  await new Promise<void>((resolve, reject) => {
-    writer.on('finish', () => resolve())
-    writer.on('error', reject)
-  })
-  return fullPath
-}
-
-const talk = async (userMessage: string, speak: boolean) => {
-  try {
-    const response = await GeneralAgent.generate(
-      [{ role: 'user', content: userMessage }],
-      {
-        resourceId: 'user_chat_2',
-        threadId: 'thread_chat_2',
-        maxSteps: 20,
-      },
-    )
-    if (speak) {
-      const audioStream = await GeneralAgent.voice.speak(response.text)
-      const filePath = await saveAudioResponse(audioStream!)
-      const play = player({})
-      play.play(filePath, (err: any) => {
-        if (err) console.error('Error playing sound:', err)
-      })
-    }
-    return response.text || "Sorry, I didn't get a response"
-  } catch (error) {
-    console.error('Error in talk function:', error)
-    return 'An error occurred while processing your message'
-  }
-}
 
 // Demo function
 async function runDemoMode() {
